@@ -1,0 +1,7 @@
+pm_api_url = "https://IP:8006/"
+cloudinit_template_name = "ubuntu-2004-cloudinit-template"
+proxmox_node = "pve"
+ssh_key = "ssh-rsa ..."
+proxmox_api_url = "https://IP:8006/"  # Your Proxmox IP Address
+proxmox_api_token_id = ""  # User ID
+proxmox_api_token_secret = "" # API Token ID
