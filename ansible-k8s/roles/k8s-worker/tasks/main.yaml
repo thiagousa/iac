@@ -1,0 +1,11 @@
+# roles/k8s-worker/tasks/main.yml
+- name: Copy join command from Ansiblehost to the worker nodes.
+  copy:
+       src: /tmp/kubernetes_join_command
+       dest: /tmp/kubernetes_join_command
+       mode: 0777
+
+- name: Join the Worker nodes to the cluster.
+  command: sh /tmp/kubernetes_join_command --ignore-preflight-errors=FileContent--proc-sys-net-bridge-bridge-nf-call-iptables,FileContent--proc-sys-net-ipv4-ip_forward
+  register: joined_or_not
+  become: true

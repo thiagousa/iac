@@ -1,0 +1,68 @@
+- name: Ensure container runtime (containerd) is running
+  systemd:
+    name: containerd
+    state: started
+    enabled: yes
+
+- name: Load kernel modules for bridge support
+  modprobe:
+    name: "{{ item }}"
+  loop:
+    - br_netfilter
+
+- name: Set sysctl configurations for Kubernetes
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: yes
+  loop:
+    - { name: "net.bridge.bridge-nf-call-ip6tables", value: 1 }
+    - { name: "net.bridge.bridge-nf-call-iptables", value: 1 }
+    - { name: "net.ipv4.ip_forward", value: 1 }
+
+- name: Initialize Kubernetes control plane
+  command: kubeadm init --pod-network-cidr=10.244.0.0/16
+  args:
+    creates: /etc/kubernetes/admin.conf
+  register: kubeadm_init_output
+
+
+- name: Get join token
+  shell: kubeadm token create  --print-join-command
+  register: kubernetes_join_command
+
+- name: Copy join command to local file.
+  copy:
+        content: "{{ kubernetes_join_command.stdout_lines[0] }}"
+        dest: "/tmp/kubernetes_join_command"
+        mode: 0777
+
+- name: Fetch file from remote
+  fetch:
+        src: /tmp/kubernetes_join_command  # Specify the path to the remote file
+        dest: /tmp/kubernetes_join_command  # Specify the local destination directory
+        flat: yes  # Flatten the directory structure on the local machine
+
+- name: Create a directory
+  file:
+        path: /home/tsantos/.kube
+        state: directory
+        mode: 0755  # You can adjust the permissions as needed
+
+- name: Copy the file to the destination host
+  copy:
+        src: /etc/kubernetes/admin.conf # Path to the fetched file on the Ansible control machine
+        dest: /home/tsantos/.kube/config  # Destination path on the destination host
+        remote_src: yes 
+        mode: 0755
+
+# - name: Copy kubeconfig to user's home directory
+#   command: "{{ item }}"
+#   loop:
+#     - cp -i /etc/kubernetes/admin.conf /home/tsantos/.kube/config
+#     - chown $(id -u):$(id -g) /home/tsantos/.kube/config
+
+- name: Install Calico CNI
+  command: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+  when: kubeadm_init_output.rc == 0
