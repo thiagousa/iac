@@ -21,7 +21,7 @@ resource "proxmox_vm_qemu" "k8s-1" {
 
 
    # VM CPU Settings
-  cores = 2
+  cores = 4
   sockets = 1
   cpu = "host"
 

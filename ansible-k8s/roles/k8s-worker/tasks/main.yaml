@@ -6,6 +6,12 @@
        mode: 0777
 
 - name: Join the Worker nodes to the cluster.
-  command: sh /tmp/kubernetes_join_command --ignore-preflight-errors=FileContent--proc-sys-net-bridge-bridge-nf-call-iptables,FileContent--proc-sys-net-ipv4-ip_forward
+  command: sh /tmp/kubernetes_join_command --ignore-preflight-errors=FileContent--etc-kubernetes-kubelet.conf,Port-10250,FileContent--etc-kubernetes-pki-ca.crt
   register: joined_or_not
   become: true
+  ignore_errors: yes  # Add this line to ignore errors during execution
+
+- name: Check if join was successful
+  debug:
+    var: joined_or_not.rc
+  when: joined_or_not is defined and joined_or_not.rc == 0

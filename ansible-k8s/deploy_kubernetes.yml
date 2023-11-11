@@ -14,6 +14,10 @@
           - curl
           - software-properties-common
           - containerd
+          - zsh
+    
+    - name: Download and install Oh My Zsh
+      shell: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
     - name: Add Kubernetes APT repository key
       apt_key:

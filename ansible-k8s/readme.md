@@ -47,21 +47,12 @@ Before running the Ansible script, ensure the following prerequisites are met:
    Execute the Ansible playbook to set up the Kubernetes cluster:
 
    ```bash
-   ansible-playbook -i inventory.ini main.yml
+   ansible-playbook -i inventory.ini deploy_kubernetes.yml
    ```
 
    This playbook will install Kubernetes on the specified machines, with one control plane and two worker nodes.
 
-4. **Access the Cluster:**
-   After the playbook completes, you can access the Kubernetes cluster from the control plane machine. Use the following command to get the join token for the worker nodes:
-
-   ```bash
-   kubeadm token create --print-join-command
-   ```
-
-   Run the generated join command on each worker node.
-
-5. **Verify Cluster:**
+4. **Verify Cluster:**
    On the control plane machine, run the following command to check the status of the cluster:
 
    ```bash
