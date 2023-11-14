@@ -1,0 +1,14 @@
+---
+- name: Install GitLab on Ubuntu 20.04
+  hosts: gitlab
+  become: yes  # Run tasks with sudo
+
+  vars:
+    gitlab_external_url: "gitlab.dossantosteam.com"  # Replace with your GitLab domain
+
+  roles:
+    - name: geerlingguy.gitlab
+      vars:
+        gitlab_manage_package: true
+        gitlab_external_url: "{{ gitlab_external_url }}"
+        gitlab_unicorn_workers: 2
